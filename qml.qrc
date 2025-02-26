@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>src/qml/main.qml</file>
         <file>src/qml/views/MonitorView.qml</file>
+        <file>src/qml/dialogs/LoginDialog.qml</file>
+        <file>src/qml/dialogs/PasswordChangeDialog.qml</file>
     </qresource>
 </RCC>

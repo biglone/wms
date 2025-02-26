@@ -8,7 +8,7 @@ ApplicationWindow {
     height: 720
     title: "视频监控系统"
     visible: true
-
+    
     // 使用传统菜单栏替代工具栏
     menuBar: MenuBar {
         // 设置菜单
@@ -25,7 +25,12 @@ ApplicationWindow {
             }
             MenuItem { 
                 text: qsTr("密码修改")
-                onTriggered: console.log("修改密码") 
+                onTriggered: {
+                    // 如果加载器不活动，则激活它
+                    if (!passwordChangeLoader.active) {
+                        passwordChangeLoader.active = true;
+                    }
+                }
             }
         }
         
@@ -70,8 +75,10 @@ ApplicationWindow {
 
     // 主内容区域
     Rectangle {
+        id: mainContent
         anchors.fill: parent
         color: "#e6e6e6"  // 改为浅灰白色背景
+        visible: false  // 初始不可见，登录后显示
 
         // 默认显示空白区域
         Rectangle {
@@ -106,6 +113,60 @@ ApplicationWindow {
                 color: "#333333"  // 深灰色文字
                 text: qsTr("就绪")
             }
+        }
+    }
+
+    // 登录对话框加载器
+    Loader {
+        id: loginLoader
+        anchors.fill: parent  // 使加载器填充整个主窗口
+        source: "qrc:/src/qml/dialogs/LoginDialog.qml"
+        active: true
+        
+        onLoaded: {
+            // 使用C++中的settingsManager
+            item.passwordUtils = settingsManager;
+            item.storedPassword = settingsManager.hashedPassword;
+            
+            // 连接登录成功信号
+            item.onLoginSuccess.connect(function() {
+                mainContent.visible = true;
+                // 不要立即设置为非活动状态，因为这可能导致闪烁
+                // 而是在对话框关闭后再设置
+            });
+            
+            // 连接对话框关闭信号
+            item.onDialogClosed.connect(function() {
+                // 对话框关闭后，将加载器设为非活动状态
+                loginLoader.active = false;
+            });
+        }
+    }
+    
+    // 密码修改对话框加载器
+    Loader {
+        id: passwordChangeLoader
+        anchors.fill: parent  // 使加载器填充整个主窗口
+        source: "qrc:/src/qml/dialogs/PasswordChangeDialog.qml"
+        active: false
+        
+        onLoaded: {
+            // 使用C++中的settingsManager
+            item.passwordUtils = settingsManager;
+            item.storedPassword = settingsManager.hashedPassword;
+            
+            // 连接密码修改信号
+            item.onPasswordChanged.connect(function(newHashedPassword) {
+                settingsManager.hashedPassword = newHashedPassword;
+            });
+            
+            // 连接对话框关闭信号
+            item.onDialogClosed.connect(function() {
+                // 对话框关闭后，将加载器设为非活动状态
+                passwordChangeLoader.active = false;
+            });
+            
+            item.open();
         }
     }
 

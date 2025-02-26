@@ -12,10 +12,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Quick REQUIRED)
-find_package(Qt5 COMPONENTS Core Quick Qml Multimedia REQUIRED)
+find_package(Qt5 COMPONENTS Core Quick Qml Multimedia Widgets REQUIRED)
 
 set(PROJECT_SOURCES
         src/cpp/main.cpp
+        src/cpp/settingsmanager.cpp
+        src/cpp/settingsmanager.h
         qml.qrc
 )
 
@@ -45,7 +47,8 @@ endif()
 target_compile_definitions(WMS
   PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(WMS
-  PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Quick Qt${QT_VERSION_MAJOR}::Qml Qt${QT_VERSION_MAJOR}::Multimedia)
+  PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Quick Qt${QT_VERSION_MAJOR}::Qml 
+  Qt${QT_VERSION_MAJOR}::Multimedia Qt${QT_VERSION_MAJOR}::Widgets)
 
 set_target_properties(WMS PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
@@ -64,5 +67,7 @@ endif()
 set(QML_FILES
     src/qml/main.qml
     src/qml/MonitorView.qml
+    src/qml/dialogs/LoginDialog.qml
+    src/qml/dialogs/PasswordChangeDialog.qml
 )
 qt5_add_resources(QML_RESOURCES ${QML_FILES})
